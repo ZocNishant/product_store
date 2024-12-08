@@ -1,32 +1,17 @@
-import express from "express"
-import dotenv from "dotenv"
-dotenv.config()
-import { connectdb } from "./config/db.js"
-import Product from "./models/product.model.js"
+import express from "express";
+import dotenv from "dotenv";
+import { connectdb } from "./config/db.js";
+import productRoutes from "../routes/product.route.js";
 
-const app = express()
+dotenv.config();
 
-app.post('/products', async (req, res)=>{
-    const product = req.body  // user will send this data
+const app = express();
 
-    if(!product.name || !product.price || !product.image) {
-        return res.status(400).json({ success:false, message: "Please Provide all the fields" })
-    }
+app.use(express.json()); // allows us to accept JSON data in req.body -> middleware
 
-    const newProduct = new Product(product)
-
-    try {
-        await newProduct.save()
-        res.status(201).json({success:true, data: newProduct})
-    }catch (error){
-        console.log(error.message)
-        res.status(500).json({success:false, message: "Server Error"})
-        
-    }
-})
+app.use("/api/products", productRoutes);
 
 app.listen(3000, () => {
-    connectdb()
-    console.log("Sever Started in port 3000 ")
-})
-
+  connectdb();
+  console.log("Sever Started in port 3000");
+});
